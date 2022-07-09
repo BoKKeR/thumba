@@ -1,0 +1,43 @@
+{
+	"name": "next-simple-starter",
+	"private": true,
+	"version": "3.0.0",
+	"repository": {
+		"url": "https://github.com/ooade/NextSimpleStarter"
+	},
+	"engines": {
+		"node": ">=10.0.0"
+	},
+	"license": "MIT",
+	"eslintConfig": {
+		"extends": "react-app"
+	},
+	"scripts": {
+		"dev": "next",
+		"start": "next start",
+		"lint": "eslint components",
+		"build": "next build",
+		"build:server": "NEXT_TARGET=server next build",
+		"export:server": "NEXT_TARGET=server next export",
+		"export": "npm run build:server && npm run export:server",
+		"start:static": "serve",
+		"now-build": "next build"
+	},
+	"dependencies": {
+		"@material-ui/core": "^4.11.4",
+		"next": "^12.2.1",
+		"next-offline": "^5.0.5",
+		"react": "^17.0.2",
+		"react-axe": "^3.5.4",
+		"react-dom": "^17.0.2"
+	},
+	"devDependencies": {
+		"babel-eslint": "^10.1.0",
+		"eslint": "^7.26.0",
+		"eslint-config-react-app": "^6.0.0",
+		"eslint-plugin-import": "^2.23.1",
+		"eslint-plugin-jsx-a11y": "^6.4.1",
+		"eslint-plugin-react": "^7.23.2",
+		"eslint-plugin-react-hooks": "^4.2.0"
+	}
+}
