@@ -24,12 +24,21 @@
 		"now-build": "next build"
 	},
 	"dependencies": {
+		"@emotion/react": "^11.9.3",
+		"@emotion/styled": "^11.9.3",
 		"@material-ui/core": "^4.11.4",
+		"@material/data-table": "^14.0.0",
+		"@mui/lab": "*",
+		"@mui/material": "^5.8.7",
+		"@mui/x-data-grid": "^5.13.0",
+		"axios": "^0.27.2",
+		"googleapis": "^105.0.0",
 		"next": "^12.2.1",
 		"next-offline": "^5.0.5",
 		"react": "^17.0.2",
 		"react-axe": "^3.5.4",
-		"react-dom": "^17.0.2"
+		"react-dom": "^17.0.2",
+		"thum.io": "^1.0.9"
 	},
 	"devDependencies": {
 		"babel-eslint": "^10.1.0",
@@ -39,5 +48,8 @@
 		"eslint-plugin-jsx-a11y": "^6.4.1",
 		"eslint-plugin-react": "^7.23.2",
 		"eslint-plugin-react-hooks": "^4.2.0"
+	},
+	"browser": {
+		"child_process": false
 	}
 }

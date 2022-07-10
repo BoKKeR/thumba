@@ -3,3 +3,4 @@ static/sw.js
 .next
 out
 *-error.log
+.env*
