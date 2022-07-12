@@ -28,6 +28,7 @@
 		"@emotion/styled": "^11.9.3",
 		"@material-ui/core": "^4.11.4",
 		"@material/data-table": "^14.0.0",
+		"@mui/icons-material": "^5.8.4",
 		"@mui/lab": "*",
 		"@mui/material": "^5.8.7",
 		"@mui/x-data-grid": "^5.13.0",
@@ -38,6 +39,7 @@
 		"react": "^17.0.2",
 		"react-axe": "^3.5.4",
 		"react-dom": "^17.0.2",
+		"require-main-filename": "^2.0.0",
 		"thum.io": "^1.0.9"
 	},
 	"devDependencies": {

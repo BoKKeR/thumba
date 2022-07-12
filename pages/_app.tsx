@@ -1,26 +1,30 @@
 import React, { useEffect } from 'react'
-import ReactDOM from 'react-dom'
 import Head from 'next/head'
-import { createMuiTheme } from '@material-ui/core/styles'
-import { ThemeProvider } from '@material-ui/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
+import { createTheme, ThemeProvider } from '@mui/material/styles'
 
-const theme = createMuiTheme({
+const theme = createTheme({
 	palette: {
-		background: {
-			default: '#EEE',
-		},
 		primary: {
-			main: '#673ab7',
+			main: '#303030',
+		},
+		secondary: {
+			main: '#f50057',
+		},
+		background: {
+			default: '#1d1515',
 		},
 	},
 })
 
+var path = require('path')
+global.appRoot = path.resolve(__dirname + '/../../..')
+console.log({ appRoot: global.appRoot })
+
 const MyApp = ({ Component, pageProps }) => {
 	useEffect(() => {
 		if (process.env.NODE_ENV !== 'production') {
-			const axe = require('react-axe')
-			axe(React, ReactDOM, 1000)
+			console.log('not in prod')
 		}
 
 		// Remove the server-side injected CSS.
@@ -33,13 +37,13 @@ const MyApp = ({ Component, pageProps }) => {
 	return (
 		<>
 			<Head>
-				<title>Todo App</title>
+				<title>thumbnail finder</title>
 				<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 			</Head>
 			<ThemeProvider theme={theme}>
-				<CssBaseline>
-					<Component {...pageProps} />
-				</CssBaseline>
+				<CssBaseline />
+
+				<Component {...pageProps} />
 			</ThemeProvider>
 		</>
 	)
