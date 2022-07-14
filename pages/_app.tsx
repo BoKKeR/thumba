@@ -1,27 +1,24 @@
 import React, { useEffect } from 'react'
 import Head from 'next/head'
 import CssBaseline from '@material-ui/core/CssBaseline'
-import { createTheme, ThemeProvider } from '@mui/material/styles'
-
-const theme = createTheme({
-	palette: {
-		primary: {
-			main: '#303030',
-		},
-		secondary: {
-			main: '#f50057',
-		},
-		background: {
-			default: '#1d1515',
-		},
-	},
-})
+import { ThemeProvider } from '@mui/material/styles'
+import Layout from '../components/Layout'
+import createEmotionCache from '../utils/createEmotionCache'
+import { CacheProvider } from '@emotion/react'
+import theme from '../constants/theme'
 
 var path = require('path')
 global.appRoot = path.resolve(__dirname + '/../../..')
 console.log({ appRoot: global.appRoot })
 
-const MyApp = ({ Component, pageProps }) => {
+// Client-side cache, shared for the whole session of the user in the browser.
+const clientSideEmotionCache = createEmotionCache()
+
+const MyApp = ({
+	Component,
+	emotionCache = clientSideEmotionCache,
+	pageProps,
+}) => {
 	useEffect(() => {
 		if (process.env.NODE_ENV !== 'production') {
 			console.log('not in prod')
@@ -35,17 +32,18 @@ const MyApp = ({ Component, pageProps }) => {
 	}, [])
 
 	return (
-		<>
+		<CacheProvider value={emotionCache}>
 			<Head>
 				<title>thumbnail finder</title>
 				<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 			</Head>
 			<ThemeProvider theme={theme}>
 				<CssBaseline />
-
-				<Component {...pageProps} />
+				<Layout>
+					<Component {...pageProps} />
+				</Layout>
 			</ThemeProvider>
-		</>
+		</CacheProvider>
 	)
 }
 

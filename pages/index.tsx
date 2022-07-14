@@ -1,9 +1,14 @@
-import { CardActions, CardContent, Link, TextField } from '@material-ui/core'
 import {
-	AppBar,
+	CardActions,
+	CardContent,
+	Checkbox,
+	FormControlLabel,
+	Link,
+	TextField,
+} from '@material-ui/core'
+import {
 	Button,
 	Card,
-	IconButton,
 	Paper,
 	Table,
 	TableBody,
@@ -11,17 +16,14 @@ import {
 	TableContainer,
 	TableHead,
 	TableRow,
-	Toolbar,
 	Typography,
 } from '@mui/material'
 import { Box } from '@mui/system'
-import { GridMenuIcon } from '@mui/x-data-grid'
 import { useState } from 'react'
 import constants from '../constants'
 import { axiosClient } from '../utils/axiosClient'
 import { updateObjectInArray } from '../utils/updateObjectInArray'
 import { LoadingButton } from '@mui/lab'
-
 import SaveIcon from '@mui/icons-material/Save'
 import DescriptionIcon from '@mui/icons-material/Description'
 import FolderIcon from '@mui/icons-material/Folder'
@@ -38,11 +40,19 @@ const getInitialRows = (folders: Partial<FolderPart>[]) => {
 	return initialRows
 }
 
+type SearchResult = {
+	link: string
+	displayLink: string
+	formattedUrl: string
+}
+
 type FolderPart = {
 	name: string
 	loading_search: boolean
 	image_url: string
 	loading_save: boolean
+	search_results: SearchResult[]
+
 	isBlockDevice: boolean
 	isCharacterDevice: boolean
 	isDirectory: boolean
@@ -54,7 +64,6 @@ type FolderPart = {
 
 export default function Index({ initialRows }) {
 	const [folderInputValue, setFolderInputValue] = useState(constants.folderPath)
-	console.log(folderInputValue)
 	const [folderData, setFolderData] =
 		useState<Partial<FolderPart>[]>(initialRows)
 
@@ -75,13 +84,21 @@ export default function Index({ initialRows }) {
 	const searchAll = async () => {
 		for (let folderEntry = 0; folderEntry < folderData.length; folderEntry++) {
 			const element = folderData[folderEntry]
-			await fetchImage(element.name)
+
+			if (IsValidFolder(element)) {
+				await searchTerm(element.name)
+			}
 		}
 	}
 
 	const onClickFetchImage = async (e) => {
 		const element_name = e.target.id
 		await fetchImage(element_name)
+	}
+
+	const onClickSearchUrl = async (e) => {
+		const element_name = e.target.id
+		await searchTerm(element_name)
 	}
 
 	const renderLink = (folderPart: Partial<FolderPart>) => {
@@ -105,7 +122,7 @@ export default function Index({ initialRows }) {
 			)
 		}
 
-		if (folderPart.isDirectory) {
+		if (IsValidFolder(folderPart)) {
 			return (
 				<>
 					<Link
@@ -127,7 +144,7 @@ export default function Index({ initialRows }) {
 		if (folderPart.isFile) {
 			return (
 				<>
-					<Link
+					<Typography
 						style={{
 							alignItems: 'center',
 							display: 'flex',
@@ -135,9 +152,43 @@ export default function Index({ initialRows }) {
 					>
 						<DescriptionIcon />
 						{folderPart.name}
-					</Link>
+					</Typography>
 				</>
 			)
+		}
+	}
+	const IsValidFolder = (folder: Partial<FolderPart>) =>
+		folder.isDirectory && folder.name !== '..'
+	const searchTerm = async (element_name: string) => {
+		try {
+			const replaceIndex = folderData.findIndex(
+				(obj) => obj.name === element_name
+			)
+
+			setFolderData((oldArray) => {
+				return updateObjectInArray(oldArray, {
+					index: replaceIndex,
+					item: { ...folderData[replaceIndex], loading_search: true },
+				})
+			})
+
+			const { data } = await axiosClient.get(`api/searchTerm`, {
+				params: { search: element_name },
+			})
+
+			// https://www.freecodecamp.org/news/what-every-react-developer-should-know-about-state/
+			setFolderData((oldArray) => {
+				return updateObjectInArray(oldArray, {
+					index: replaceIndex,
+					item: {
+						...oldArray[replaceIndex],
+						search_results: data.search_results,
+						loading_search: false,
+					},
+				})
+			})
+		} catch (error) {
+			console.log({ error })
 		}
 	}
 
@@ -153,8 +204,8 @@ export default function Index({ initialRows }) {
 			})
 			setFolderData(loadingArray)
 
-			const { data } = await axiosClient.get(`api/image`, {
-				params: { search: element_name },
+			const { data } = await axiosClient.get(`api/searchImage`, {
+				params: { url: element_name },
 			})
 
 			console.log({
@@ -215,24 +266,6 @@ export default function Index({ initialRows }) {
 	return (
 		<main>
 			<Box sx={{ flexGrow: 1 }}>
-				<AppBar position="static">
-					<Toolbar>
-						<IconButton
-							size="large"
-							edge="start"
-							color="inherit"
-							aria-label="menu"
-							sx={{ mr: 2 }}
-						>
-							<GridMenuIcon />
-						</IconButton>
-						<Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-							thumbnail finder
-						</Typography>
-						<Button color="inherit">Settings</Button>
-					</Toolbar>
-				</AppBar>
-
 				<Card sx={{ minWidth: 275, m: 4 }}>
 					<CardContent>
 						<Typography
@@ -254,6 +287,12 @@ export default function Index({ initialRows }) {
 					<CardActions>
 						<Button
 							variant="contained"
+							onClick={() => loadFolder(constants.folderPath)}
+						>
+							Home
+						</Button>
+						<Button
+							variant="contained"
 							onClick={() => loadFolder(folderInputValue)}
 						>
 							Change folder
@@ -272,21 +311,21 @@ export default function Index({ initialRows }) {
 							<TableRow>
 								<TableCell>File/Folder</TableCell>
 								<TableCell align="right">Buttons</TableCell>
-								<TableCell align="right">Image</TableCell>
-								<TableCell align="right">Image_url</TableCell>
+								<TableCell align="right">Search results</TableCell>
+								<TableCell align="right">Image results</TableCell>
 							</TableRow>
 						</TableHead>
 						<TableBody>
-							{folderData.map((_row) => (
+							{folderData.map((row) => (
 								<TableRow
-									key={_row.name}
+									key={row.name}
 									sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
 								>
-									<TableCell component="th" scope="_row">
-										{renderLink(_row)}
+									<TableCell component="th" scope="row">
+										{renderLink(row)}
 									</TableCell>
 									<TableCell align="right">
-										{_row.name !== '..' && (
+										{row.name !== '..' && row.isDirectory && (
 											<div
 												style={{
 													display: 'flex',
@@ -294,21 +333,31 @@ export default function Index({ initialRows }) {
 												}}
 											>
 												<LoadingButton
-													id={_row.name}
+													id={row.name}
+													sx={{ mr: 1 }}
+													variant={'contained'}
+													onClick={onClickSearchUrl}
+													loading={row.loading_search}
+												>
+													<ImageSearchIcon />
+													Search url
+												</LoadingButton>
+												<LoadingButton
+													id={row.name}
 													sx={{ mr: 1 }}
 													variant={'contained'}
 													onClick={onClickFetchImage}
-													loading={_row.loading_search}
+													loading={row.loading_search}
 												>
 													<ImageSearchIcon />
-													Search
+													Get image
 												</LoadingButton>
 												<LoadingButton
-													id={_row.image_url}
-													disabled={!_row.image_url}
+													id={row.image_url}
+													disabled={!row.image_url}
 													variant={'contained'}
 													onClick={onClickSaveImage}
-													loading={!!_row.loading_save}
+													loading={!!row.loading_save}
 												>
 													<SaveIcon />
 													Save
@@ -317,15 +366,27 @@ export default function Index({ initialRows }) {
 										)}
 									</TableCell>
 									<TableCell align="right">
-										{_row.image_url && (
+										{row?.search_results &&
+											row.search_results.map((result) => (
+												<FormControlLabel
+													value="end"
+													control={<Checkbox />}
+													label={result.link}
+													labelPlacement="end"
+												/>
+												// <Typography variant="h6">{result.link}</Typography>
+											))}
+									</TableCell>
+									<TableCell align="right">
+										{' '}
+										{row.image_url && (
 											<img
-												src={_row.image_url}
+												src={row.image_url}
 												alt={'someImage'}
 												style={{ width: 120 }}
 											/>
 										)}
 									</TableCell>
-									<TableCell align="right">{_row.image_url}</TableCell>
 								</TableRow>
 							))}
 						</TableBody>

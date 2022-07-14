@@ -23,4 +23,5 @@ module.exports = withOffline({
 			},
 		],
 	},
+	reactStrictMode: true,
 })

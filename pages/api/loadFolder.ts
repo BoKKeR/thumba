@@ -9,7 +9,6 @@ export default async function handler(req, res) {
 		const filePath = path.join(folder)
 
 		const folders = await getDirectoryContent(filePath)
-		console.log(folders)
 
 		return res.status(200).json({ folders, filePath: filePath })
 	} catch (error) {
@@ -31,12 +30,10 @@ const methods = [
 
 const getDirectoryContent = async (source: string) =>
 	(await readdir(source, { withFileTypes: true }))
-		//.filter((dirent) => dirent.isDirectory())
-		// const kType = Symbol('type');
 
 		.map((dirent) => {
-			var cur = { name: dirent.name }
-			for (var method of methods) cur[method] = dirent[method]()
+			let cur = { name: dirent.name }
+			for (const method of methods) cur[method] = dirent[method]()
 			return cur
 		})
 		.sort((a, b) => b.name - a.name)
