@@ -9,7 +9,11 @@ import {
 import {
 	Button,
 	Card,
+	FormControl,
+	FormLabel,
 	Paper,
+	Radio,
+	RadioGroup,
 	Table,
 	TableBody,
 	TableCell,
@@ -19,7 +23,7 @@ import {
 	Typography,
 } from '@mui/material'
 import { Box } from '@mui/system'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import constants from '../constants'
 import { axiosClient } from '../utils/axiosClient'
 import { updateObjectInArray } from '../utils/updateObjectInArray'
@@ -44,13 +48,17 @@ type SearchResult = {
 	link: string
 	displayLink: string
 	formattedUrl: string
+	title: string
 }
 
 type FolderPart = {
 	name: string
+
 	loading_search: boolean
-	image_url: string
 	loading_save: boolean
+	loading_image_generation: boolean
+
+	image_url: string
 	search_results: SearchResult[]
 
 	isBlockDevice: boolean
@@ -63,9 +71,29 @@ type FolderPart = {
 }
 
 export default function Index({ initialRows }) {
+	const [showHover, setShowHover] = useState(false)
 	const [folderInputValue, setFolderInputValue] = useState(constants.folderPath)
 	const [folderData, setFolderData] =
 		useState<Partial<FolderPart>[]>(initialRows)
+	const [globalCoords, setGlobalCoords] = useState({ x: 0, y: 0 })
+	const [hoverImageUrl, setHoverImageUrl] = useState<string>(undefined)
+
+	useEffect(() => {
+		const handleWindowMouseMove = (event) => {
+			setGlobalCoords({
+				x: event.clientX + 5,
+				y: event.clientY + 5,
+			})
+			if (event.target.currentSrc) {
+				setHoverImageUrl(event.target.currentSrc)
+			}
+		}
+		window.addEventListener('mousemove', handleWindowMouseMove)
+
+		return () => {
+			window.removeEventListener('mousemove', handleWindowMouseMove)
+		}
+	}, [])
 
 	const loadFolder = async (folder: string) => {
 		let folderPath = folderInputValue + '/' + folder
@@ -82,9 +110,7 @@ export default function Index({ initialRows }) {
 	}
 
 	const searchAll = async () => {
-		for (let folderEntry = 0; folderEntry < folderData.length; folderEntry++) {
-			const element = folderData[folderEntry]
-
+		for (const element of folderData) {
 			if (IsValidFolder(element)) {
 				await searchTerm(element.name)
 			}
@@ -102,6 +128,7 @@ export default function Index({ initialRows }) {
 	}
 
 	const renderLink = (folderPart: Partial<FolderPart>) => {
+		const spaceStyle = { paddingRight: 10 }
 		if (folderPart.name === '..') {
 			return (
 				<>
@@ -115,7 +142,7 @@ export default function Index({ initialRows }) {
 							await loadFolder(folderPart.name)
 						}}
 					>
-						<DriveFolderUploadIcon />
+						<DriveFolderUploadIcon style={spaceStyle} fontSize={'large'} />
 						{folderPart.name}
 					</Link>
 				</>
@@ -124,7 +151,8 @@ export default function Index({ initialRows }) {
 
 		if (IsValidFolder(folderPart)) {
 			return (
-				<>
+				<div style={{ display: 'flex' }}>
+					<div style={spaceStyle}>{showImageOrFolderIcon(folderPart)}</div>
 					<Link
 						style={{
 							cursor: 'pointer',
@@ -135,10 +163,9 @@ export default function Index({ initialRows }) {
 							await loadFolder(folderPart.name)
 						}}
 					>
-						<FolderIcon />
 						{folderPart.name}
 					</Link>
-				</>
+				</div>
 			)
 		}
 		if (folderPart.isFile) {
@@ -150,7 +177,7 @@ export default function Index({ initialRows }) {
 							display: 'flex',
 						}}
 					>
-						<DescriptionIcon />
+						<DescriptionIcon style={spaceStyle} fontSize={'large'} />
 						{folderPart.name}
 					</Typography>
 				</>
@@ -188,7 +215,7 @@ export default function Index({ initialRows }) {
 				})
 			})
 		} catch (error) {
-			console.log({ error })
+			//console.log({ error })
 		}
 	}
 
@@ -198,33 +225,31 @@ export default function Index({ initialRows }) {
 			const replaceIndex = localData.findIndex(
 				(obj) => obj.name === element_name
 			)
-			const loadingArray = updateObjectInArray(localData, {
-				index: replaceIndex,
-				item: { ...localData[replaceIndex], loading_search: true },
-			})
-			setFolderData(loadingArray)
+			const google_url = localData[replaceIndex].search_results[0].link
 
-			const { data } = await axiosClient.get(`api/searchImage`, {
-				params: { url: element_name },
-			})
-
-			console.log({
-				...localData[replaceIndex],
-				image_url: data.image_url,
-				loading_search: false,
+			setFolderData((oldArray) => {
+				return updateObjectInArray(oldArray, {
+					index: replaceIndex,
+					item: { ...localData[replaceIndex], loading_image_generation: true },
+				})
 			})
 
-			const newArray = updateObjectInArray(localData, {
-				index: replaceIndex,
-				item: {
-					...localData[replaceIndex],
-					image_url: data.image_url,
-					loading_search: false,
-				},
+			const { data } = await axiosClient.get(`api/getImageUrl`, {
+				params: { url: google_url },
 			})
-			setFolderData(newArray)
+
+			setFolderData((oldArray) =>
+				updateObjectInArray(oldArray, {
+					index: replaceIndex,
+					item: {
+						...localData[replaceIndex],
+						image_url: data.image_url,
+						loading_image_generation: false,
+					},
+				})
+			)
 		} catch (error) {
-			console.log({ error })
+			//console.log({ error })
 		}
 	}
 
@@ -261,6 +286,28 @@ export default function Index({ initialRows }) {
 			})
 			setFolderData(loadingArray)
 		} catch (error) {}
+	}
+
+	const showImageOrFolderIcon = (folderPart: Partial<FolderPart>) => {
+		const url =
+			constants.baseUrl +
+			'/api/getLocalImage?imagePath=' +
+			'video/' +
+			folderPart.name +
+			'/preview.jpg'
+
+		return (
+			<img
+				alt=""
+				onMouseOver={() => setShowHover(true)}
+				onMouseLeave={() => setShowHover(false)}
+				onFocus={() => {}}
+				style={{ width: 35 }}
+				src={url}
+			/>
+		)
+
+		return <FolderIcon />
 	}
 
 	return (
@@ -305,14 +352,19 @@ export default function Index({ initialRows }) {
 				</Card>
 			</Box>
 			<Card sx={{ minWidth: 275, m: 4 }}>
+				1. navigate to given folder 2. click search to search google for sites
+				based on the folder name 3. Pick matching result 4. Generate thumbnails
+				5. Save thumbnails
+			</Card>
+			<Card sx={{ minWidth: 275, m: 4 }}>
 				<TableContainer component={Paper}>
 					<Table sx={{ minWidth: 650 }} aria-label="simple table">
 						<TableHead>
 							<TableRow>
 								<TableCell>File/Folder</TableCell>
-								<TableCell align="right">Buttons</TableCell>
-								<TableCell align="right">Search results</TableCell>
-								<TableCell align="right">Image results</TableCell>
+								<TableCell align="left">Buttons</TableCell>
+								<TableCell align="left">Search results</TableCell>
+								<TableCell align="left">Image results</TableCell>
 							</TableRow>
 						</TableHead>
 						<TableBody>
@@ -324,7 +376,7 @@ export default function Index({ initialRows }) {
 									<TableCell component="th" scope="row">
 										{renderLink(row)}
 									</TableCell>
-									<TableCell align="right">
+									<TableCell align="left">
 										{row.name !== '..' && row.isDirectory && (
 											<div
 												style={{
@@ -342,19 +394,65 @@ export default function Index({ initialRows }) {
 													<ImageSearchIcon />
 													Search url
 												</LoadingButton>
+											</div>
+										)}
+									</TableCell>
+									<TableCell align="left">
+										<div
+											style={{
+												display: 'flex',
+												flex: 1,
+												flexDirection: 'column',
+											}}
+										>
+											<FormControl>
+												<RadioGroup
+													aria-labelledby="demo-radio-buttons-group-label"
+													defaultValue="female"
+													name="radio-buttons-group"
+												>
+													{row?.search_results?.map((result) => (
+														<>
+															<FormControlLabel
+																value={result.formattedUrl}
+																control={<Radio />}
+																label={result.title}
+																labelPlacement="end"
+															/>
+															<Typography>{result.formattedUrl}</Typography>
+														</>
+													))}
+												</RadioGroup>
+											</FormControl>
+
+											{row?.search_results && (
 												<LoadingButton
 													id={row.name}
 													sx={{ mr: 1 }}
 													variant={'contained'}
 													onClick={onClickFetchImage}
-													loading={row.loading_search}
+													disabled={!row.search_results}
+													loading={row.loading_image_generation}
 												>
 													<ImageSearchIcon />
 													Get image
 												</LoadingButton>
+											)}
+										</div>
+									</TableCell>
+									<TableCell align="left">
+										{row.image_url && (
+											<>
+												<img
+													style={{ width: 120 }}
+													onMouseOver={() => setShowHover(true)}
+													onMouseLeave={() => setShowHover(false)}
+													src={row.image_url}
+													alt={''}
+													onFocus={() => {}}
+												/>
 												<LoadingButton
 													id={row.image_url}
-													disabled={!row.image_url}
 													variant={'contained'}
 													onClick={onClickSaveImage}
 													loading={!!row.loading_save}
@@ -362,29 +460,7 @@ export default function Index({ initialRows }) {
 													<SaveIcon />
 													Save
 												</LoadingButton>
-											</div>
-										)}
-									</TableCell>
-									<TableCell align="right">
-										{row?.search_results &&
-											row.search_results.map((result) => (
-												<FormControlLabel
-													value="end"
-													control={<Checkbox />}
-													label={result.link}
-													labelPlacement="end"
-												/>
-												// <Typography variant="h6">{result.link}</Typography>
-											))}
-									</TableCell>
-									<TableCell align="right">
-										{' '}
-										{row.image_url && (
-											<img
-												src={row.image_url}
-												alt={'someImage'}
-												style={{ width: 120 }}
-											/>
+											</>
 										)}
 									</TableCell>
 								</TableRow>
@@ -392,6 +468,18 @@ export default function Index({ initialRows }) {
 						</TableBody>
 					</Table>
 				</TableContainer>
+				{showHover && (
+					<img
+						alt=""
+						style={{
+							width: 200,
+							position: 'absolute',
+							left: globalCoords.x,
+							top: globalCoords.y,
+						}}
+						src={hoverImageUrl}
+					/>
+				)}
 			</Card>
 		</main>
 	)

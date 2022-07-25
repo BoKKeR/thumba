@@ -6,15 +6,18 @@ const getScreenshot = async (url: string) => {
 		url: url,
 		width: constants.imageWidth,
 		auth: {
-			type: 'md5',
+			type: 'raw',
 			secret: constants.thumKeySecret,
 			keyId: constants.thumKeyId,
 		},
 	})
-	return 'https:' + thumURL
+	const link = 'https:' + thumURL
+
+	return link
 }
 
 export default async function handler(req, res) {
 	const url = req.query['url']
+
 	res.status(200).json({ image_url: await getScreenshot(url) })
 }

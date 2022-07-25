@@ -1,6 +1,7 @@
 import { AppBar, Button, IconButton, Toolbar, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import Link from 'next/link'
+import Logo from './Logo'
 
 type Props = {
 	children: JSX.Element | JSX.Element[]
@@ -20,11 +21,7 @@ const Layout: React.FC<Props> = ({ children }) => {
 							sx={{ mr: 2 }}
 							href="/"
 						>
-							<img
-								rel="icon"
-								src="static/img/thumb.jpeg"
-								style={{ width: 50 }}
-							/>
+							<Logo style={{ width: 50, height: 50 }} />
 						</IconButton>
 						<Link href="/">
 							<Typography

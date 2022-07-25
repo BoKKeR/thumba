@@ -7,6 +7,7 @@ const constants = {
 	thumKeySecret: process.env.THUM_KEY_SECRET,
 	searchResults: 3,
 	imageWidth: 1400,
+	baseUrl: 'http://localhost:3000',
 }
 
 export default constants

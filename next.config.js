@@ -23,5 +23,8 @@ module.exports = withOffline({
 			},
 		],
 	},
+	images: {
+		domains: ['image.thum.io', 'localhost'],
+	},
 	reactStrictMode: true,
 })
