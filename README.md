@@ -16,7 +16,20 @@ https://user-images.githubusercontent.com/2664857/181109614-c2b1c286-ee9d-4ed9-b
 
 ### Docker
 
-For the docker image go to: https://hub.docker.com/r/bokker/thumba/
+```
+docker create \
+  --name=thumba \
+  -e GOOGLE_SEARCH_KEY=key \
+  -e GOOGLE_SEARCH_CX=projectId \
+  -e THUM_KEY_ID=keyID \
+  -e THUM_KEY_SECRET=keySecret \
+  -v /path/to/host/config:/app/config \
+  -v /path/to/host/thumbnail_folder:/app/video \
+  --restart unless-stopped \
+  bokker/thumba
+```
+
+For more info go to: https://hub.docker.com/r/bokker/thumba/
 
 ### Usage
 

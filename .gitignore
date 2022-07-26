@@ -5,3 +5,4 @@ out
 *-error.log
 .env*
 **/preview.*
+.DS_Store
