@@ -44,7 +44,6 @@ const Layout: React.FC<Props> = ({ children }) => {
 								style={{
 									display: 'flex',
 									flex: 1,
-									backgroundColor: 'orange',
 									alignItems: 'center',
 									justifyContent: 'center',
 								}}

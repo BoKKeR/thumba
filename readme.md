@@ -1,47 +1,46 @@
-<p align="center">
-<img src="logo.png" alt="logo" width="180px"/>
-<p align="center"><a href="https://travis-ci.org/ooade/NextSimpleStarter"><img src="https://travis-ci.org/ooade/NextSimpleStarter.svg?branch=main" alt="travis-ci"/></a> <a href="https://codeclimate.com/github/ooade/NextSimpleStarter/badges"><img src="https://codeclimate.com/github/ooade/NextSimpleStarter/badges/gpa.svg" alt="codeclimate-gpa-badge"/></a> <a href="https://codeclimate.com/github/ooade/NextSimpleStarter"><img src="https://codeclimate.com/github/ooade/NextSimpleStarter/badges/issue_count.svg" alt="codeclimate-issues-badge"/></a><br/>
-<h3 align="center">Simple NextJS PWA boilerplate.</h3></p>
-</p>
+![thumba](https://github.com/BoKKeR/thumba/raw/master/thumba.png)
 
-## Getting Started
+![Docker Pulls](https://img.shields.io/docker/pulls/bokker/thumba) ![Docker Stars](https://img.shields.io/docker/stars/bokker/thumba) ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/BoKKeR/thumba/master/master) ![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/bokker/thumba) 
 
-- First, run the development server with `npm run dev`.
-- Navigate to [http://localhost:3000](http://localhost:3000) on your browser.
-- Start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+# Thumba
+A self hosted Thumbnail generator/finder which creates thumbnails based on folder names and google search results.
 
-### Learn More
+## Description
 
-To learn more about Next.js, take a look at the following resources:
+This project uses the Google search api to find URL-s based on folder names. From there [thum.io](https://www.thum.io) is used to generat thumbnails of the url-s.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+<video src="https://github.com/BoKKeR/thumba/raw/master/thumba_vid.mp4" controls="controls" />
 
-## Deployment
-### ▲ Deploy on Vercel
+### Docker
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new/git/external?repository-url=https%3A%2F%2Fgithub.com%2Fooade%2FNextSimpleStarter) from the creators of Next.js.
+For the docker image go to: https://hub.docker.com/r/bokker/thumba/
 
-Check out the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### Usage
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https%3A%2F%2Fgithub.com%2Fooade%2FNextSimpleStarter)
+You will need two API keys. 
 
-### ⊚ Deploy on Netlify
+#### Google custom search API
 
-- On Netlify, Click on new site from git.
-- Select Cloned Repository.
-- Choose VCS.
-- Add build command `next build && next export`.
-- Add publish directory `out`.
+Google custom search API is used to find website results based on the folder names. Google has a 100 search per day free tier but the paid options should be fairly cheap also.
 
-### ⊚ Deploy on Gitpod
+1. sign up to https://programmablesearchengine.google.com/
+2. Enable the API if needed
+3. Add billing account if more than free tier amounts needed.
+4. Create a search project to receive a CX search engine ID at https://programmablesearchengine.google.com/controlpanel/all  
 
-<a href="https://gitpod.io/#https://github.com/ooade/NextSimpleStarter">Click here</a> to deploy on Gitpod.
+#### Thum.io API
 
-## Contribution
+This service is used to generate the images from the URLs. They provide a paid plan that includes 10000 images for 1$ a month
+
+1. sign up https://www.thum.io/signup
+2. add credit card
+3. generate a key at https://www.thum.io/admin/keys
+4. copy keyID and keySecret (not key name)
+
+### Contribution
 
 I'm open to contributions & suggestions in making this a lot better :hand:
 
 ## License
 
-MIT
+[GNU AGPLv3](https://choosealicense.com/licenses/agpl-3.0/)
