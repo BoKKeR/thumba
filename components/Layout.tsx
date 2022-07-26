@@ -30,7 +30,7 @@ const Layout: React.FC<Props> = ({ children }) => {
 								style={{ cursor: 'pointer' }}
 								sx={{ flexGrow: 1 }}
 							>
-								thumba
+								Thumba
 							</Typography>
 						</Link>
 						<div
