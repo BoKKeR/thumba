@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import Head from 'next/head'
 import CssBaseline from '@material-ui/core/CssBaseline'
+
 import { ThemeProvider } from '@mui/material/styles'
 import Layout from '../components/Layout'
 import createEmotionCache from '../utils/createEmotionCache'
@@ -9,7 +10,6 @@ import theme from '../constants/theme'
 
 var path = require('path')
 global.appRoot = path.resolve(__dirname + '/../../..')
-console.log({ appRoot: global.appRoot })
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache()

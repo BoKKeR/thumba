@@ -1,5 +1,5 @@
 const constants = {
-	test: true,
+	test: false,
 	folderPath: 'video',
 	googleKey: process.env.GOOGLE_SEARCH_KEY,
 	cx: process.env.GOOGLE_SEARCH_CX,
@@ -8,6 +8,7 @@ const constants = {
 	searchResults: 3,
 	imageWidth: 1400,
 	baseUrl: 'http://localhost:3000',
+	thumbnailFilename: 'preview.jpg',
 }
 
 export default constants

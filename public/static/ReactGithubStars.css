@@ -1,0 +1,66 @@
+:root {
+  --divHeight: 16px;
+  --defaultColor: #111;
+  --borderColor: #666;
+}
+
+.rgsContainer {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.rgsShow {
+  opacity: 1 !important;
+}
+
+.rgs {
+  display: inline-block;
+  position: relative;
+  width: auto;
+  height: var(--divHeight);
+  margin: 0;
+}
+
+.rgsDisplayBorder {
+  padding: 5px 8px;
+  border: 1px solid var(--borderColor);
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  background-color: white;
+}
+
+.rgsStar {
+  display: inline-block;
+  float: left;
+  width: 14px;
+  height: var(--divHeight);
+  margin-right: 5px;
+  padding: 0;
+  background-size: 100%;
+  background-repeat: no-repeat;
+}
+
+.rgsCount {
+  display: inline-block;
+  float: left;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: bold;
+  font-family: Helvetica, Arial, sans-serif;
+  line-height: var(--divHeight);
+  color: var(--defaultColor);
+}
+
+.rgsAltcolor {
+  color: white;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.25);
+}
+
+.rgsDefaultstar {
+	background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj4gIDxnPiAgICA8cGF0aCBpZD0ic3ZnXzIiIGQ9Im0wIDM4bDM3IDAgMTEtMzggMTEgMzggMzcgMCAtMzAgMjMgMTEgMzggLTMwLTIzIC0zMCAyMyAxMS0zOCAtMzAtMjMgMCAweiIgc3Ryb2tlLWxpbmVjYXA9Im51bGwiIHN0cm9rZS1saW5lam9pbj0ibnVsbCIgc3Ryb2tlLWRhc2hhcnJheT0ibnVsbCIgc3Ryb2tlLXdpZHRoPSIwIiBmaWxsPSIjMDAwMDAwIi8+ICA8L2c+PC9zdmc+);
+}
+
+.rgsAltstar {
+	background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj4gIDxnPiAgICA8cGF0aCBpZD0ic3ZnXzIiIGQ9Im0wIDM4bDM3IDAgMTEtMzggMTEgMzggMzcgMCAtMzAgMjMgMTEgMzggLTMwLTIzIC0zMCAyMyAxMS0zOCAtMzAtMjMgMCAweiIgc3Ryb2tlLWxpbmVjYXA9Im51bGwiIHN0cm9rZS1saW5lam9pbj0ibnVsbCIgc3Ryb2tlLWRhc2hhcnJheT0ibnVsbCIgc3Ryb2tlLXdpZHRoPSIwIiBmaWxsPSIjRkZGRjAwIi8+ICA8L2c+PC9zdmc+);
+  filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.25));
+}

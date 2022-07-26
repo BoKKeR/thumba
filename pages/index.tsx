@@ -1,19 +1,9 @@
-import {
-	CardActions,
-	CardContent,
-	Checkbox,
-	FormControlLabel,
-	Link,
-	TextField,
-} from '@material-ui/core'
+import { CardActions, CardContent, Link, TextField } from '@material-ui/core'
 import {
 	Button,
 	Card,
 	FormControl,
-	FormLabel,
 	Paper,
-	Radio,
-	RadioGroup,
 	Table,
 	TableBody,
 	TableCell,
@@ -32,6 +22,7 @@ import SaveIcon from '@mui/icons-material/Save'
 import DescriptionIcon from '@mui/icons-material/Description'
 import FolderIcon from '@mui/icons-material/Folder'
 import ImageSearchIcon from '@mui/icons-material/ImageSearch'
+import SearchIcon from '@mui/icons-material/Search'
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload'
 
 const getInitialRows = (folders: Partial<FolderPart>[]) => {
@@ -49,6 +40,7 @@ type SearchResult = {
 	displayLink: string
 	formattedUrl: string
 	title: string
+	generatedThumbnailUrl?: string
 }
 
 type FolderPart = {
@@ -58,9 +50,7 @@ type FolderPart = {
 	loading_save: boolean
 	loading_image_generation: boolean
 
-	image_url: string
 	search_results: SearchResult[]
-
 	isBlockDevice: boolean
 	isCharacterDevice: boolean
 	isDirectory: boolean
@@ -77,13 +67,29 @@ export default function Index({ initialRows }) {
 		useState<Partial<FolderPart>[]>(initialRows)
 	const [globalCoords, setGlobalCoords] = useState({ x: 0, y: 0 })
 	const [hoverImageUrl, setHoverImageUrl] = useState<string>(undefined)
+	const [cacheTime, setCacheTime] = useState<number>(new Date().getTime())
 
+	const hoverImageSize = 400
 	useEffect(() => {
 		const handleWindowMouseMove = (event) => {
-			setGlobalCoords({
-				x: event.clientX + 5,
-				y: event.clientY + 5,
-			})
+			// TODO: Fix this so it dynamically moves
+			/* 			console.log({
+				innerHeight: window.innerHeight,
+				pageY: event.pageY,
+				availHeight: window,
+			}) */
+
+			if (window.innerHeight < event.pageY + hoverImageSize) {
+				setGlobalCoords({
+					x: event.pageX + 10,
+					y: event.pageY - 420 + 10,
+				})
+			} else {
+				setGlobalCoords({
+					x: event.pageX + 10,
+					y: event.pageY + 10,
+				})
+			}
 			if (event.target.currentSrc) {
 				setHoverImageUrl(event.target.currentSrc)
 			}
@@ -117,13 +123,35 @@ export default function Index({ initialRows }) {
 		}
 	}
 
+	const getAllImages = async () => {
+		for (const element of folderData) {
+			if (IsValidFolder(element) && element.search_results) {
+				await fetchImage(element.name)
+			}
+		}
+	}
+	const saveAllFirstImages = async () => {
+		for (const element of folderData) {
+			if (
+				IsValidFolder(element) &&
+				element.search_results &&
+				element.search_results[0].generatedThumbnailUrl
+			) {
+				await saveImage(
+					element.name,
+					element.search_results[0].generatedThumbnailUrl
+				)
+			}
+		}
+	}
+
 	const onClickFetchImage = async (e) => {
-		const element_name = e.target.id
+		const element_name = e.currentTarget.id
 		await fetchImage(element_name)
 	}
 
 	const onClickSearchUrl = async (e) => {
-		const element_name = e.target.id
+		const element_name = e.currentTarget.id
 		await searchTerm(element_name)
 	}
 
@@ -188,14 +216,12 @@ export default function Index({ initialRows }) {
 		folder.isDirectory && folder.name !== '..'
 	const searchTerm = async (element_name: string) => {
 		try {
-			const replaceIndex = folderData.findIndex(
-				(obj) => obj.name === element_name
-			)
+			const itemIndex = folderData.findIndex((obj) => obj.name === element_name)
 
 			setFolderData((oldArray) => {
 				return updateObjectInArray(oldArray, {
-					index: replaceIndex,
-					item: { ...folderData[replaceIndex], loading_search: true },
+					index: itemIndex,
+					item: { ...folderData[itemIndex], loading_search: true },
 				})
 			})
 
@@ -206,9 +232,9 @@ export default function Index({ initialRows }) {
 			// https://www.freecodecamp.org/news/what-every-react-developer-should-know-about-state/
 			setFolderData((oldArray) => {
 				return updateObjectInArray(oldArray, {
-					index: replaceIndex,
+					index: itemIndex,
 					item: {
-						...oldArray[replaceIndex],
+						...oldArray[itemIndex],
 						search_results: data.search_results,
 						loading_search: false,
 					},
@@ -219,146 +245,210 @@ export default function Index({ initialRows }) {
 		}
 	}
 
-	const fetchImage = async (element_name: string) => {
+	const fetchImage = async (element_name: string, link?: string) => {
 		const localData = [...folderData]
 		try {
-			const replaceIndex = localData.findIndex(
-				(obj) => obj.name === element_name
-			)
-			const google_url = localData[replaceIndex].search_results[0].link
+			const itemIndex = localData.findIndex((obj) => obj.name === element_name)
 
-			setFolderData((oldArray) => {
-				return updateObjectInArray(oldArray, {
-					index: replaceIndex,
-					item: { ...localData[replaceIndex], loading_image_generation: true },
-				})
-			})
+			if (!link) {
+				for (const searchResult of localData[itemIndex].search_results) {
+					const google_url = searchResult.link
 
-			const { data } = await axiosClient.get(`api/getImageUrl`, {
-				params: { url: google_url },
-			})
+					setFolderData((oldArray) => {
+						return updateObjectInArray(oldArray, {
+							index: itemIndex,
+							item: {
+								...localData[itemIndex],
+								loading_image_generation: true,
+							},
+						})
+					})
 
-			setFolderData((oldArray) =>
-				updateObjectInArray(oldArray, {
-					index: replaceIndex,
-					item: {
-						...localData[replaceIndex],
-						image_url: data.image_url,
-						loading_image_generation: false,
-					},
-				})
-			)
+					const { data } = await axiosClient.get(`api/getImageUrl`, {
+						params: { url: google_url },
+					})
+
+					searchResult.generatedThumbnailUrl = data.image_url
+
+					setFolderData((oldArray) =>
+						updateObjectInArray(oldArray, {
+							index: itemIndex,
+							item: {
+								...localData[itemIndex],
+								loading_image_generation: false,
+								searchResults: updateObjectInArray(
+									oldArray[itemIndex].search_results,
+									{
+										index: 0,
+										item: searchResult,
+									}
+								),
+								image_url: data.image_url,
+							},
+						})
+					)
+				}
+			}
 		} catch (error) {
 			//console.log({ error })
 		}
 	}
 
 	const onClickSaveImage = async (e) => {
-		const image_url = e.target.id
-		await saveImage(image_url)
+		const image_url = e.currentTarget.id
+		const element_name = e.currentTarget.name
+		await saveImage(element_name, image_url)
 	}
 
-	const saveImage = async (image_url: string) => {
+	const resetCacheTimer = () => {
+		setCacheTime(new Date().getTime())
+	}
+
+	const saveImage = async (element_name: string, image_url: string) => {
 		try {
-			const replaceIndex = folderData.findIndex(
-				(obj) => obj.image_url === image_url
-			)
+			const itemIndex = folderData.findIndex((obj) => obj.name === element_name)
 
 			let loadingArray = updateObjectInArray(folderData, {
-				index: replaceIndex,
-				item: { ...folderData[replaceIndex], loading_save: true },
+				index: itemIndex,
+				item: { ...folderData[itemIndex], loading_save: true },
 			})
-			setFolderData(loadingArray)
+			//setFolderData(loadingArray)
 			await axiosClient.get('api/saveImage', {
 				params: {
 					image_url: image_url,
-					folder: folderData[replaceIndex].name,
+					folder: folderInputValue + '/' + folderData[itemIndex].name,
 				},
 			})
 
 			loadingArray = updateObjectInArray(folderData, {
-				index: replaceIndex,
+				index: itemIndex,
 				item: {
-					...folderData[replaceIndex],
+					...folderData[itemIndex],
 					loading_save: false,
 					image_saved: true,
 				},
 			})
-			setFolderData(loadingArray)
+			//setFolderData(loadingArray)
+			setTimeout(() => {
+				resetCacheTimer()
+			}, 1000)
 		} catch (error) {}
 	}
-
+	// TODO: FIX so you can navigate further down
 	const showImageOrFolderIcon = (folderPart: Partial<FolderPart>) => {
 		const url =
 			constants.baseUrl +
 			'/api/getLocalImage?imagePath=' +
-			'video/' +
-			folderPart.name +
-			'/preview.jpg'
+			encodeURIComponent(
+				folderInputValue +
+					'/' +
+					folderPart.name +
+					'/' +
+					constants.thumbnailFilename
+			) +
+			'&t=' +
+			cacheTime
 
 		return (
-			<img
-				alt=""
-				onMouseOver={() => setShowHover(true)}
-				onMouseLeave={() => setShowHover(false)}
-				onFocus={() => {}}
-				style={{ width: 35 }}
-				src={url}
-			/>
-		)
+			<>
+				<img
+					alt=""
+					onMouseOver={() => setShowHover(true)}
+					onMouseLeave={() => setShowHover(false)}
+					onFocus={() => {}}
+					style={{
+						width: 35,
+						border: '#858585ce',
+						borderWidth: 1,
+						borderStyle: 'solid',
+					}}
+					src={url}
+				/>
 
-		return <FolderIcon />
+				<FolderIcon />
+			</>
+		)
 	}
 
 	return (
 		<main>
-			<Box sx={{ flexGrow: 1 }}>
-				<Card sx={{ minWidth: 275, m: 4 }}>
-					<CardContent>
-						<Typography
-							sx={{ fontSize: 14 }}
-							color="text.secondary"
-							gutterBottom
-						>
-							Current folder
-						</Typography>
-
-						<TextField
-							value={folderInputValue}
-							style={{ width: 600 }}
-							onChange={(e) => setFolderInputValue(e.target.value)}
-						>
-							test
-						</TextField>
-					</CardContent>
-					<CardActions>
-						<Button
-							variant="contained"
-							onClick={() => loadFolder(constants.folderPath)}
-						>
-							Home
-						</Button>
-						<Button
-							variant="contained"
-							onClick={() => loadFolder(folderInputValue)}
-						>
-							Change folder
-						</Button>
-						<Button variant="contained" onClick={searchAll}>
-							Search all
-						</Button>
-						<Button variant="contained">Save all</Button>
-					</CardActions>
+			<div style={{ display: 'flex' }}>
+				<Card sx={{ m: 4, p: 4 }}>
+					<Typography variant="h2">Instructions</Typography>
+					<Typography>1. Navigate to a given folder</Typography>
+					<Typography>
+						2. Click search to search Google for urls based on the folder name
+					</Typography>
+					<Typography>3. Generate thumbnails</Typography>
+					<Typography>4. Save chosen thumbnail</Typography>
 				</Card>
-			</Box>
+				<Card sx={{ m: 4, p: 4 }}>
+					<div
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							alignItems: 'flex-start',
+						}}
+					>
+						<Typography variant="h2">Bulk Actions</Typography>
+
+						<Button
+							variant="contained"
+							onClick={searchAll}
+							sx={{ marginTop: 2 }}
+						>
+							1. Search google for all folder names
+						</Button>
+						<Button
+							variant="contained"
+							onClick={getAllImages}
+							sx={{ marginTop: 2 }}
+						>
+							2. Generate thumbnails from found urls
+						</Button>
+						<Button
+							variant="contained"
+							onClick={saveAllFirstImages}
+							sx={{ marginTop: 2 }}
+						>
+							3. Save each first thumbnail
+						</Button>
+					</div>
+				</Card>
+			</div>
 			<Card sx={{ minWidth: 275, m: 4 }}>
-				1. navigate to given folder 2. click search to search google for sites
-				based on the folder name 3. Pick matching result 4. Generate thumbnails
-				5. Save thumbnails
+				<CardContent>
+					<Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+						Current folder
+					</Typography>
+
+					<TextField
+						value={folderInputValue}
+						style={{ width: 600 }}
+						onChange={(e) => setFolderInputValue(e.target.value)}
+					/>
+				</CardContent>
+				<CardActions>
+					<Button
+						variant="contained"
+						onClick={() => loadFolder(constants.folderPath)}
+					>
+						Home
+					</Button>
+					<Button
+						variant="contained"
+						onClick={() => loadFolder(folderInputValue)}
+					>
+						Change folder
+					</Button>
+					<Button variant="contained" onClick={resetCacheTimer}>
+						Reload folder thumbnails
+					</Button>
+				</CardActions>
 			</Card>
-			<Card sx={{ minWidth: 275, m: 4 }}>
+			<Card sx={{ m: 4 }}>
 				<TableContainer component={Paper}>
-					<Table sx={{ minWidth: 650 }} aria-label="simple table">
+					<Table sx={{ minWidth: 10 }} aria-label="simple table">
 						<TableHead>
 							<TableRow>
 								<TableCell>File/Folder</TableCell>
@@ -378,12 +468,7 @@ export default function Index({ initialRows }) {
 									</TableCell>
 									<TableCell align="left">
 										{row.name !== '..' && row.isDirectory && (
-											<div
-												style={{
-													display: 'flex',
-													flexDirection: 'row',
-												}}
-											>
+											<div>
 												<LoadingButton
 													id={row.name}
 													sx={{ mr: 1 }}
@@ -391,8 +476,7 @@ export default function Index({ initialRows }) {
 													onClick={onClickSearchUrl}
 													loading={row.loading_search}
 												>
-													<ImageSearchIcon />
-													Search url
+													<SearchIcon />
 												</LoadingButton>
 											</div>
 										)}
@@ -406,23 +490,17 @@ export default function Index({ initialRows }) {
 											}}
 										>
 											<FormControl>
-												<RadioGroup
-													aria-labelledby="demo-radio-buttons-group-label"
-													defaultValue="female"
-													name="radio-buttons-group"
-												>
-													{row?.search_results?.map((result) => (
-														<>
-															<FormControlLabel
-																value={result.formattedUrl}
-																control={<Radio />}
-																label={result.title}
-																labelPlacement="end"
-															/>
-															<Typography>{result.formattedUrl}</Typography>
-														</>
-													))}
-												</RadioGroup>
+												{row?.search_results?.map((result, index) => (
+													<div style={{ marginBottom: 4 }} key={result.link}>
+														<a
+															href={result.formattedUrl}
+															rel="noopener noreferrer"
+															target="_blank"
+														>
+															{index + 1 + '. ' + result.title}
+														</a>
+													</div>
+												))}
 											</FormControl>
 
 											{row?.search_results && (
@@ -435,33 +513,54 @@ export default function Index({ initialRows }) {
 													loading={row.loading_image_generation}
 												>
 													<ImageSearchIcon />
-													Get image
+													Generate thumbnails from links
 												</LoadingButton>
 											)}
 										</div>
 									</TableCell>
 									<TableCell align="left">
-										{row.image_url && (
-											<>
-												<img
-													style={{ width: 120 }}
-													onMouseOver={() => setShowHover(true)}
-													onMouseLeave={() => setShowHover(false)}
-													src={row.image_url}
-													alt={''}
-													onFocus={() => {}}
-												/>
-												<LoadingButton
-													id={row.image_url}
-													variant={'contained'}
-													onClick={onClickSaveImage}
-													loading={!!row.loading_save}
-												>
-													<SaveIcon />
-													Save
-												</LoadingButton>
-											</>
-										)}
+										<div style={{ display: 'flex', flexDirection: 'row' }}>
+											{row.search_results?.map((result) => {
+												if (result.generatedThumbnailUrl) {
+													return (
+														<Card
+															key={result.link}
+															sx={{ p: 1, m: 1 }}
+															style={{
+																backgroundColor: 'grey',
+																display: 'flex',
+																flexDirection: 'column',
+															}}
+														>
+															<img
+																style={{
+																	width: 200,
+																	margin: 2,
+																	border: '#000',
+																	borderStyle: 'solid',
+																	borderWidth: 1,
+																}}
+																onMouseOver={() => setShowHover(true)}
+																onMouseLeave={() => setShowHover(false)}
+																src={result.generatedThumbnailUrl}
+																alt={''}
+																onFocus={() => {}}
+															/>
+															<LoadingButton
+																id={result.generatedThumbnailUrl}
+																name={row.name}
+																sx={{ marginTop: 2 }}
+																variant={'contained'}
+																onClick={onClickSaveImage}
+															>
+																<SaveIcon />
+																Save thumbnail
+															</LoadingButton>
+														</Card>
+													)
+												}
+											})}
+										</div>
 									</TableCell>
 								</TableRow>
 							))}
@@ -472,10 +571,14 @@ export default function Index({ initialRows }) {
 					<img
 						alt=""
 						style={{
-							width: 200,
+							width: hoverImageSize,
+							height: hoverImageSize,
 							position: 'absolute',
 							left: globalCoords.x,
 							top: globalCoords.y,
+							border: '#000',
+							borderWidth: 3,
+							borderStyle: 'solid',
 						}}
 						src={hoverImageUrl}
 					/>

@@ -1,4 +1,5 @@
 import path from 'path'
+import pathManagement from '../../utils/pathManagement'
 const fs = require('fs')
 
 const mime = {
@@ -15,19 +16,14 @@ const mime = {
 export default async function handler(req, res) {
 	let localImagePath = req?.query['imagePath']
 
-	const fullPath = path.resolve(global.appRoot, localImagePath)
-
 	try {
-		const type = mime[path.extname(fullPath).slice(1)] || 'text/plain'
-		const s = fs.createReadStream(fullPath)
-		s.on('open', function () {
-			res.writeHead(200, { 'Content-Type': type })
-			s.pipe(res)
-		})
-		s.on('error', function () {
-			res.writeHead(404, { 'Content-Type': 'text/plain' }).send()
-		})
+		const fullPath = pathManagement(localImagePath)
+
+		//const type = mime[path.extname(fullPath).slice(1)] || 'text/plain'
+		const s = await fs.readFileSync(fullPath)
+
+		res.end(s, 'binary')
 	} catch (error) {
-		res.status(500).send('internal error')
+		res.status(404).send('no image')
 	}
 }
