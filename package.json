@@ -1,7 +1,7 @@
 {
 	"name": "next-simple-starter",
 	"private": true,
-	"version": "3.0.4",
+	"version": "3.0.5",
 	"repository": {
 		"url": "https://github.com/ooade/NextSimpleStarter"
 	},
