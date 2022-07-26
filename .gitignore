@@ -4,3 +4,4 @@ static/sw.js
 out
 *-error.log
 .env*
+**/preview.*
