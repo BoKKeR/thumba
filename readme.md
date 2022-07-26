@@ -1,6 +1,7 @@
 <img src="https://github.com/BoKKeR/thumba/raw/master/thumba.png" alt="thumba" width="200"/>
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/bokker/thumba) ![Docker Stars](https://img.shields.io/docker/stars/bokker/thumba) ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/BoKKeR/thumba/master/master) ![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/bokker/thumba) 
+<a href="https://www.buymeacoffee.com/bokker" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
 # Thumba
 A self hosted Thumbnail generator/finder which creates thumbnails based on folder names and google search results.
@@ -18,14 +19,14 @@ For the docker image go to: https://hub.docker.com/r/bokker/thumba/
 
 ### Usage
 
-You will need two API keys. 
+You will need two API keys and a search engine project CX ID. 
 
 #### Google custom search API
 
 Google custom search API is used to find website results based on the folder names. Google has a 100 search per day free tier but the paid options should be fairly cheap also.
 
 1. sign up to https://programmablesearchengine.google.com/
-2. Enable the API if needed
+2. Enable the API and grab the GOOGLE_SEARCH_KEY
 3. Add billing account if more than free tier amounts needed.
 4. Create a search project to receive a CX search engine ID at https://programmablesearchengine.google.com/controlpanel/all  
 

@@ -34,7 +34,7 @@ const MyApp = ({
 	return (
 		<CacheProvider value={emotionCache}>
 			<Head>
-				<title>thumbnail finder</title>
+				<title>Thumba</title>
 				<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 			</Head>
 			<ThemeProvider theme={theme}>
