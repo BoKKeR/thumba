@@ -9,9 +9,10 @@ A self hosted Thumbnail generator/finder which creates thumbnails based on folde
 
 This project uses the Google search api to find URL-s based on folder names. From there [thum.io](https://www.thum.io) is used to generat thumbnails of the url-s.
 
-<video src="thumba_vid.mp4" style="max-width: 730px;" controls="controls"></video>
-![thumba](thumba_vid.mp4)
-[![thumba](thumba_vid.mp4)](test)
+## Video
+
+https://user-images.githubusercontent.com/2664857/181109614-c2b1c286-ee9d-4ed9-b762-fb6e5b59ddfd.mp4
+
 ### Docker
 
 For the docker image go to: https://hub.docker.com/r/bokker/thumba/
