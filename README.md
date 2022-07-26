@@ -39,10 +39,11 @@ You will need two API keys and a search engine project CX ID.
 
 Google custom search API is used to find website results based on the folder names. Google has a 100 search per day free tier but the paid options should be fairly cheap also.
 
-1. sign up to https://programmablesearchengine.google.com/
-2. Enable the API and grab the GOOGLE_SEARCH_KEY
-3. Add billing account if more than free tier amounts needed.
-4. Create a search project to receive a CX search engine ID at https://programmablesearchengine.google.com/controlpanel/all  
+1. sign up to https://programmablesearchengine.google.com/ 
+2. create a new project with access to the entire web
+3. grab the ID
+4. Enable the search API at https://developers.google.com/custom-search/v1/introduction and grab the GOOGLE_SEARCH_KEY
+5. (optional) Add billing account if more than free tier amounts needed at
 
 #### Thum.io API
 
