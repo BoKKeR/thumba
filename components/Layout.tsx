@@ -58,14 +58,14 @@ const Layout: React.FC<Props> = ({ children }) => {
 									Stars
 								</GitHubButton>
 							</div>
-							<Button
+							{/* <Button
 								sx={{ marginLeft: 4 }}
 								color="inherit"
 								variant="outlined"
 								href="/settings"
 							>
 								Settings
-							</Button>
+							</Button> */}
 						</div>
 					</Toolbar>
 				</AppBar>
