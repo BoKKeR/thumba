@@ -12,7 +12,6 @@ import {
 	TableRow,
 	Typography,
 } from '@mui/material'
-import { Box } from '@mui/system'
 import { useEffect, useState } from 'react'
 import constants from '../constants'
 import { axiosClient } from '../utils/axiosClient'
@@ -47,7 +46,6 @@ type FolderPart = {
 	name: string
 
 	loading_search: boolean
-	loading_save: boolean
 	loading_image_generation: boolean
 
 	search_results: SearchResult[]
@@ -308,11 +306,6 @@ export default function Index({ initialRows }) {
 		try {
 			const itemIndex = folderData.findIndex((obj) => obj.name === element_name)
 
-			let loadingArray = updateObjectInArray(folderData, {
-				index: itemIndex,
-				item: { ...folderData[itemIndex], loading_save: true },
-			})
-			//setFolderData(loadingArray)
 			await axiosClient.get('api/saveImage', {
 				params: {
 					image_url: image_url,
@@ -320,15 +313,6 @@ export default function Index({ initialRows }) {
 				},
 			})
 
-			loadingArray = updateObjectInArray(folderData, {
-				index: itemIndex,
-				item: {
-					...folderData[itemIndex],
-					loading_save: false,
-					image_saved: true,
-				},
-			})
-			//setFolderData(loadingArray)
 			setTimeout(() => {
 				resetCacheTimer()
 			}, 1000)
@@ -559,6 +543,7 @@ export default function Index({ initialRows }) {
 														</Card>
 													)
 												}
+												return false
 											})}
 										</div>
 									</TableCell>

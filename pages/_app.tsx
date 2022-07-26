@@ -8,7 +8,7 @@ import createEmotionCache from '../utils/createEmotionCache'
 import { CacheProvider } from '@emotion/react'
 import theme from '../constants/theme'
 
-var path = require('path')
+const path = require('path')
 global.appRoot = path.resolve(__dirname + '/../../..')
 
 // Client-side cache, shared for the whole session of the user in the browser.
