@@ -7,7 +7,9 @@ const constants = {
 	thumKeySecret: process.env.THUM_KEY_SECRET,
 	searchResults: 3,
 	imageWidth: 1400,
-	baseUrl: 'http://localhost:3000',
+	baseUrl: process.env.BASE_URL
+		? process.env.BASE_URL
+		: 'http://localhost:3000',
 	thumbnailFilename: 'preview.jpg',
 }
 

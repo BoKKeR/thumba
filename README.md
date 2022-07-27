@@ -23,8 +23,10 @@ docker create \
   -e GOOGLE_SEARCH_CX=projectId \
   -e THUM_KEY_ID=keyID \
   -e THUM_KEY_SECRET=keySecret \
+  -e BASE_URL=http://localhost:3000 \
   -v /path/to/host/config:/app/config \
   -v /path/to/host/thumbnail_folder:/app/video \
+  -p 3000:3000 \
   --restart unless-stopped \
   bokker/thumba
 ```
