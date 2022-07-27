@@ -1,3 +1,7 @@
+const port = process.env.NEXT_PUBLIC_PORT
+	? process.env.NEXT_PUBLIC_PORT
+	: '10010'
+
 const constants = {
 	test: false,
 	folderPath: 'video',
@@ -7,7 +11,7 @@ const constants = {
 	thumKeySecret: process.env.THUM_KEY_SECRET,
 	searchResults: 3,
 	imageWidth: 1400,
-	baseUrl: `http://localhost:${process.env.NEXT_PUBLIC_PORT}`,
+	baseUrl: `http://localhost:${port}`,
 	thumbnailFilename: 'preview.jpg',
 }
 
