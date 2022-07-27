@@ -1,6 +1,14 @@
 const withOffline = require('next-offline')
 
 module.exports = withOffline({
+	async headers() {
+		return [
+			{
+				source: '/api/(.*)',
+				headers: [{ key: 'Access-Control-Allow-Origin', value: '*' }],
+			},
+		]
+	},
 	workboxOpts: {
 		swDest: 'static/service-worker.js',
 		runtimeCaching: [
