@@ -16,7 +16,7 @@ const constants = {
 	searchResults: 3,
 	imageWidth: 1400,
 	baseUrl: `${host}:${port}`,
-	thumbnailFilename: 'preview.jpg',
+	thumbnailFilename: 'folder.jpg',
 }
 
 export default constants
