@@ -23,6 +23,8 @@ docker create \
   -e GOOGLE_SEARCH_CX=projectId \
   -e THUM_KEY_ID=keyID \
   -e THUM_KEY_SECRET=keySecret \
+	-e NEXT_PUBLIC_HOST=http://localhost \
+	-e NEXT_PUBLIC_PORT=10010 \
   -v /path/to/host/config:/app/config \
   -v /path/to/host/thumbnail_folder:/app/video \
   -p 10010:10010 \
@@ -31,6 +33,7 @@ docker create \
 ```
 
 You can optionally set the port using `NEXT_PUBLIC_PORT`
+You can optionally set the host using `NEXT_PUBLIC_HOST` dont set the port here, just the IP, default is localhost it should match the host where you are accessing the service from.
 
 Dockerhub: https://hub.docker.com/r/bokker/thumba/
 

@@ -48,7 +48,7 @@ module.exports = withOffline({
 	},
 	serverRuntimeConfig: {},
 	publicRuntimeConfig: {
-		NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
+		NEXT_PUBLIC_HOST: process.env.NEXT_PUBLIC_HOST,
 		NEXT_PUBLIC_PORT: process.env.NEXT_PUBLIC_PORT,
 	},
 	env: {},
