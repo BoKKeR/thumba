@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import Head from 'next/head'
 import CssBaseline from '@material-ui/core/CssBaseline'
-
 import { ThemeProvider } from '@mui/material/styles'
 import Layout from '../components/Layout'
 import createEmotionCache from '../utils/createEmotionCache'

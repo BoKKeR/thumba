@@ -34,6 +34,7 @@
 		"@mui/lab": "*",
 		"@mui/material": "^5.9.0",
 		"@mui/x-data-grid": "^5.13.0",
+		"@next/env": "^12.2.3",
 		"axios": "^0.27.2",
 		"googleapis": "^105.0.0",
 		"next": "^12.2.1",

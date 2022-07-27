@@ -25,7 +25,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload'
 
 const getInitialRows = (folders: Partial<FolderPart>[]) => {
-	const initialRows = folders.map((folder) => ({
+	const initialRows = folders?.map((folder) => ({
 		name: folder.name,
 		...folder,
 	}))
@@ -578,6 +578,7 @@ export async function getServerSideProps() {
 		const { data } = await axiosClient.get('api/loadFolder', {
 			params: { folder: constants.folderPath },
 		})
+
 		const folders = data.folders
 
 		const initialRows = getInitialRows(folders)

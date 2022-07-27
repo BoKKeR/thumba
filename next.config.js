@@ -34,5 +34,11 @@ module.exports = withOffline({
 	images: {
 		domains: ['image.thum.io', 'localhost'],
 	},
+	serverRuntimeConfig: {},
+	publicRuntimeConfig: {
+		NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
+		NEXT_PUBLIC_PORT: process.env.NEXT_PUBLIC_PORT,
+	},
+	env: {},
 	reactStrictMode: true,
 })

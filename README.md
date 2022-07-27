@@ -23,15 +23,16 @@ docker create \
   -e GOOGLE_SEARCH_CX=projectId \
   -e THUM_KEY_ID=keyID \
   -e THUM_KEY_SECRET=keySecret \
-  -e BASE_URL=http://localhost:3000 \
   -v /path/to/host/config:/app/config \
   -v /path/to/host/thumbnail_folder:/app/video \
-  -p 3000:3000 \
+  -p 10010:10010 \
   --restart unless-stopped \
   bokker/thumba
 ```
 
-For more info go to: https://hub.docker.com/r/bokker/thumba/
+You can optionally set the port using `NEXT_PUBLIC_PORT`
+
+Dockerhub: https://hub.docker.com/r/bokker/thumba/
 
 ### Usage
 
