@@ -9,5 +9,7 @@ else
     PORT=$NEXT_PUBLIC_PORT
 fi
 
+mkdir -p video
+
 ./node_modules/.bin/next build
 ./node_modules/.bin/next start -p $PORT
